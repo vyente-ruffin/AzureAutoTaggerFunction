@@ -1,6 +1,4 @@
-# Deploy to Azure Function App - func-autotagger-35fc088e (VS Enterprise subscription)
-
-name: Build and deploy to Azure Function App
+name: Deploy AutoTagger Function
 
 on:
   push:
@@ -9,21 +7,24 @@ on:
   workflow_dispatch:
 
 env:
+  AZURE_FUNCTIONAPP_NAME: func-autotagger-35fc088e
   AZURE_FUNCTIONAPP_PACKAGE_PATH: '.'
 
 jobs:
   deploy:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     
     steps:
-      - name: 'Checkout GitHub Action'
+      - name: Checkout
         uses: actions/checkout@v4
-      
-      - name: 'Run Azure Functions Action'
-        uses: Azure/functions-action@v1
-        id: fa
+
+      - name: Azure Login
+        uses: azure/login@v2
         with:
-          app-name: 'func-autotagger-35fc088e'
-          slot-name: 'Production'
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy to Azure Functions
+        uses: Azure/functions-action@v1
+        with:
+          app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
-          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
